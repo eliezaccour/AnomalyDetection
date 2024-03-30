@@ -20,12 +20,12 @@ We'll consider a sample relatively complex data set consisting of 3 data files, 
 **Dataset 2:** Consists of several configuration data for the element, along with their values, and IDs.
 | ElementID | Configuration | Value | ConfigurationID |
 |-----------------|-----------------|-----------------|-----------------|
-| 0    | Data Transmission Protocol    | MQTT    | 20
-| 0    | Power Source    | Battery    | 21 |
-| 0    | Control Interface | Wi-Fi    | 24 |
-| 1    | Data Transmission Protocol    | HTTP    | 20
-| 1    | Power Source    | Solar    | 21 |
-| 1    | Control Interface | 5G    | 24 |
+| 0    | Data Transmission Protocol    | MQTT [LoRaWAN]    | 20
+| 0    | Power Source    | Battery [Backup]   | 21 |
+| 0    | Control Interface | Wi-Fi [LoRaWAN]    | 24 |
+| 1    | Data Transmission Protocol    | HTTP [MQTT]   | 20
+| 1    | Power Source    | Solar [Battery]    | 21 |
+| 1    | Control Interface | 5G [Wi-Fi]    | 24 |
 | ... |
 
 **DataSet 3:** Consists of the element ID again, a serial number unique to the element, and its model number.
