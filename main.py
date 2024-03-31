@@ -198,5 +198,3 @@ def get_anomalous_sensors(ds, audits_prediction, outlier_detection_method='Perce
 
 audits_prediction = get_anomalous_audits(ds, method='KMeans', reduce_dim=True, outlier_detection_method='StandardDeviation')
 sensors_prediction = get_anomalous_sensors(ds, audits_prediction, outlier_detection_method='Percentile')
-
-
