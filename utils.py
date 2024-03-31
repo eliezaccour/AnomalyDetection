@@ -16,26 +16,7 @@ from scipy.spatial.distance import cdist
 
 def preprocess_datasets(t_col = 0.6, t_row = 1):
     '''
-    Function that:
-        - Loads all datasets
-        - Uses the unnamed column as index
-        - Drops the columns that are not important/repetitive, and those are:
-            In DS1:
-                - The "unit" column which is "C" for all.
-                - The "id_field_values" column which is a unique value per row (does not provide any relevant info).
-                - The "id_ftp" field which is confirmed by the data owner as of no use.
-            In DS2:
-                - The "field" column which is "powerClass" for all.
-                - The "id_trx_status" column which is a unique value per row (does not provide any relevant info).
-        - Renames the "value" column which is a common name in DS1 and DS2, to "value_temp" in DS1 and splits it into two columns in DS2 "power_watt" and "power_dbm".
-        - Rearranges the datasets into 1 dataset, by rearranging the following rows for each id_audit into columns:
-            - The "field" column from DS1.
-            - The "branch_header" column from DS2. Note that we have 8 branches (A -> H). However, branches have two values for their power (Watt and dBm), so they will result in 2*8 = 16 columns.
-        - Merge all datasets to form 1.
-        - Clean up the dataset by:
-            - Keeping only temperature values between -40°C and 125°C.
-            - Removing columns that have too many missing values. This is controlled by the parameter "t" which defines the tolerated percentage of non-missing values for a column to be considered.
-        - Returns 1 dataset with only 1 row for each id_audit.
+    Data Preprocessing
 
     Parameters
     ----------
@@ -371,7 +352,7 @@ def predict_one_sample(input_vector, km, clusters_centers, outlier_distance_0, o
         print("Error making a prediction")
 
 
-def predict_batch(X, outlier_detection_method, km, clusters_centers, distances_cluster_0, distances_cluster_1, distances_cluster_2, X_cluster_0, X_cluster_1, X_cluster_2, q_audits_percentile, q_audits_std):
+def predict_batch(X, outlier_detection_method, km, clusters_centers, distances_cluster_0, distances_cluster_1, distances_cluster_2, X_cluster_0, X_cluster_1, X_cluster_2, q_elements_percentile, q_elements_std):
     '''
     Predict a batch of samples.
 
@@ -387,8 +368,8 @@ def predict_batch(X, outlier_detection_method, km, clusters_centers, distances_c
     X_cluster_0 : Dataset samples belonging to cluster 0.
     X_cluster_1 : Dataset samples belonging to cluster 1.
     X_cluster_2 : Dataset samples belonging to cluster 2.
-    q_audits_percentile : Defines the percentile upon which data points that have distances higher than q_audits_percentile% of the rest are considered outliers.
-    q_audits_std : Defines the standard deviation upon which data points that have distances further away from the center than q_audits_std% are considered outliers.
+    q_elements_percentile : Defines the percentile upon which data points that have distances higher than q_elements_percentile% of the rest are considered outliers.
+    q_elements_std : Defines the standard deviation upon which data points that have distances further away from the center than q_elements_std% are considered outliers.
 
     Returns
     -------
@@ -406,17 +387,17 @@ def predict_batch(X, outlier_detection_method, km, clusters_centers, distances_c
         distances[y_pred == 2] = cdist(clusters_centers[2].reshape(1,clusters_centers.shape[1]), X[y_pred == 2, :], 'euclidean').reshape(X_cluster_2.shape[0], 1)
     
         prediction = np.zeros([X.shape[0], 1])
-        prediction[y_pred == 0] = np.where(distances[y_pred == 0] > np.percentile(distances_cluster_0, q_audits_percentile), 1, 0) # 1: outlier, 0: not an outlier
-        prediction[y_pred == 1] = np.where(distances[y_pred == 1] > np.percentile(distances_cluster_1, q_audits_percentile), 1, 0)
-        prediction[y_pred == 2] = np.where(distances[y_pred == 2] > np.percentile(distances_cluster_2, q_audits_percentile), 1, 0)
+        prediction[y_pred == 0] = np.where(distances[y_pred == 0] > np.percentile(distances_cluster_0, q_elements_percentile), 1, 0) # 1: outlier, 0: not an outlier
+        prediction[y_pred == 1] = np.where(distances[y_pred == 1] > np.percentile(distances_cluster_1, q_elements_percentile), 1, 0)
+        prediction[y_pred == 2] = np.where(distances[y_pred == 2] > np.percentile(distances_cluster_2, q_elements_percentile), 1, 0)
     
         number_of_outliers = prediction[np.where(prediction == 1)].sum()
         outlier_percentage = number_of_outliers/X.shape[0]
     else: # if outlier_detection_method == 'StandardDeviation'
         prediction = np.zeros([X.shape[0], 1])
-        prediction[y_pred == 0] = np.where(distances_cluster_0 > q_audits_std * (np.median(distances_cluster_0) + np.std(distances_cluster_0)), 1, 0) # 1: outlier, 0: not an outlier
-        prediction[y_pred == 1] = np.where(distances_cluster_1 > q_audits_std * (np.median(distances_cluster_1) + np.std(distances_cluster_1)), 1, 0) # 1: outlier, 0: not an outlier
-        prediction[y_pred == 2] = np.where(distances_cluster_2 > q_audits_std * (np.median(distances_cluster_2) + np.std(distances_cluster_2)), 1, 0) # 1: outlier, 0: not an outlier
+        prediction[y_pred == 0] = np.where(distances_cluster_0 > q_elements_std * (np.median(distances_cluster_0) + np.std(distances_cluster_0)), 1, 0) # 1: outlier, 0: not an outlier
+        prediction[y_pred == 1] = np.where(distances_cluster_1 > q_elements_std * (np.median(distances_cluster_1) + np.std(distances_cluster_1)), 1, 0) # 1: outlier, 0: not an outlier
+        prediction[y_pred == 2] = np.where(distances_cluster_2 > q_elements_std * (np.median(distances_cluster_2) + np.std(distances_cluster_2)), 1, 0) # 1: outlier, 0: not an outlier
     
         number_of_outliers = prediction[np.where(prediction == 1)].sum()
         outlier_percentage = number_of_outliers/X.shape[0]
