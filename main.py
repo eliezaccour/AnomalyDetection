@@ -4,7 +4,6 @@ Anomaly Detection
 - K-Means
 - Autoencoder
 
-@author: elizac
 """
 
 import numpy as np
