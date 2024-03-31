@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-
 Anomaly Detection
 - K-Means
 - Autoencoder
-
 """
 
 import numpy as np
