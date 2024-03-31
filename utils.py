@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Utils
-
-@author: elizac
 """
 
 import numpy as np
