@@ -450,19 +450,3 @@ def sensor_detections_visualization(measurements_predictions, measurements_names
     plt.ylabel('Measurements Detections')
     plt.xlabel('Measurements')
     plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
